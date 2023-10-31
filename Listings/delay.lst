@@ -1,0 +1,52 @@
+C51 COMPILER V9.60.7.0   DELAY                                                             10/26/2023 19:06:11 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE DELAY
+OBJECT MODULE PLACED IN .\Objects\delay.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE Sys\delay.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Driver;.\Sys) DEBUG OBJECT
+                    -EXTEND PRINT(.\Listings\delay.lst) TABS(2) OBJECT(.\Objects\delay.obj)
+
+line level    source
+
+   1          #include "DELAY.H"
+   2          
+   3          /*
+   4           *函数名：软件延时函数(0 - 65535毫秒)
+   5           *参数：需要延时的毫秒数
+   6           *返回值：无
+   7           *功能：进行软件延时(需要占用CPU资源)
+   8           */
+   9          void Delay(u16 xms) //@11.0592MHz
+  10          {
+  11   1        while (xms)
+  12   1        {
+  13   2          unsigned char data i, j;
+  14   2          _nop_();
+  15   2          _nop_();
+  16   2          _nop_();
+  17   2          i = 11;
+  18   2          j = 190;
+  19   2          do
+  20   2          {
+  21   3            while (--j)
+  22   3              ;
+  23   3          } while (--i);
+  24   2      
+  25   2          xms--;
+  26   2        }
+  27   1      }
+*** WARNING C316 IN LINE 27 OF Sys\delay.c: unterminated conditionals
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     27    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

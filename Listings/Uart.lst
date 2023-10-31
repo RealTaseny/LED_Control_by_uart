@@ -1,0 +1,168 @@
+C51 COMPILER V9.60.7.0   UART                                                              10/26/2023 19:06:11 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN .\Objects\Uart.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE Sys\Uart.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Driver;.\Sys) DEBUG OBJECTE
+                    -XTEND PRINT(.\Listings\Uart.lst) TABS(2) OBJECT(.\Objects\Uart.obj)
+
+line level    source
+
+   1          #include "UART.H"
+   2          
+   3          bit busy = 0;     // 发送忙标志位
+   4          bit error_flag = 0;   // 错误帧标志位
+   5          bit receive_flag = 0; // 软件接受标志位
+   6          SData Strings_Data;   // 字符串结构体
+   7          extern KS key;      // 按键状态结构体
+*** ERROR C129 IN LINE 7 OF Sys\Uart.c: missing ';' before 'key'
+   8          
+   9          /*
+  10           *函数名：UART初始化函数
+  11           *作者：王彦皓
+  12           *函数功能：初始化UART串口1，波特率115200bps
+  13           *入口参数：无
+  14           *返回参数：无
+  15           */
+  16          void Uart_Init(void) // 115200bps*****Runing@11.0592MHz*******
+  17          {
+  18            EA = 1;          // 允许CPU总中断
+  19            ES = 1;          // 开启串口中断
+  20            SCON = 0x50;       // 8位数据,可变波特率
+  21            AUXR |= 0x01;      // 串口1选择定时器2为波特率发生器
+  22            AUXR &= 0xFB;      // 定时器时钟12T模式
+  23            T2L = 0xFE;        // 设置定时初始值
+  24            T2H = 0xFF;        // 设置定时初始值
+  25            AUXR |= 0x10;      // 定时器2开始计时
+  26            Strings_Data.Length = 0; // 初始化字符串缓存区长度
+  27          }
+  28          
+  29          /*
+  30           *函数名：Uart串口发送字节函数
+  31           *作者：王彦皓
+  32           *函数功能：通过UART串口向上位机发送一个字节数据
+  33           *入口参数：待发送的数据
+  34           *返回参数：无
+  35           */
+  36          void Uart_SendByte(u8 Date)
+  37          {
+  38            while (busy)
+  39              ;
+  40            busy = 1;
+  41            SBUF = Date;
+  42          }
+  43          
+  44          /*
+  45           *函数名：指令判别函数
+  46           *作者：王彦皓
+  47           *函数功能：判断上位机发送来的指令是否合法
+  48           *入口参数：无
+  49           *返回参数：无
+  50           */
+  51          void correct_error_command(void)
+  52          {
+  53            if ((Strings_Data.Length) > (FRAME_LENGTH + 1))
+C51 COMPILER V9.60.7.0   UART                                                              10/26/2023 19:06:11 PAGE 2   
+
+  54            {
+  55              while (Strings_Data.Length != 0xFF)
+  56              {
+  57                Strings_Data.String[Strings_Data.Length] = '\0';
+  58                Strings_Data.Length--;
+  59              }
+  60              error_flag = 1;
+  61            }
+  62            if (Strings_Data.String[0] != '#' || Strings_Data.String[1] != 'L' || Strings_Data.String[3] != 'P' || St
+             -rings_Data.String[5] != '@' || Strings_Data.String[6] != '!')
+  63            {
+  64              while (Strings_Data.Length != 0xFF)
+  65              {
+  66                Strings_Data.String[Strings_Data.Length] = '\0';
+  67                Strings_Data.Length--;
+  68              }
+  69              error_flag = 1;
+  70            }
+  71            if ((Strings_Data.String[2] < '0' || Strings_Data.String[2] > '4'))
+  72            {
+  73              while (Strings_Data.Length != 0xFF)
+  74              {
+  75                Strings_Data.String[Strings_Data.Length] = '\0';
+  76                Strings_Data.Length--;
+  77              }
+  78              error_flag = 1;
+  79            }
+  80            if ((Strings_Data.String[4] < '0' || Strings_Data.String[4] > '5'))
+  81            {
+  82              while (Strings_Data.Length != 0xFF)
+  83              {
+  84                Strings_Data.String[Strings_Data.Length] = '\0';
+  85                Strings_Data.Length--;
+  86              }
+  87              error_flag = 1;
+  88            }
+  89          }
+  90          
+  91          /*
+  92           *函数名：UART中断服务函数
+  93           *函数功能：当上位机发送数据来时存入数组，当要发送数据时清空TI与busy位
+  94           *入口参数：无
+  95           *返回参数：无
+  96           */
+  97          void Uart_Rountine(void) interrupt 4
+  98          {
+  99            if (RI)
+ 100            {
+ 101              if (error_flag)
+ 102                error_flag = 0;
+ 103              if (Strings_Data.Length > FRAME_LENGTH)
+ 104                Strings_Data.Length = 0;
+ 105          
+ 106              Strings_Data.String[Strings_Data.Length] = SBUF;
+ 107              Strings_Data.Length++;
+ 108              receive_flag = 1;
+ 109              RI = 0;
+ 110            }
+ 111            if (TI)
+ 112            {
+ 113              busy = 0;
+ 114              TI = 0;
+C51 COMPILER V9.60.7.0   UART                                                              10/26/2023 19:06:11 PAGE 3   
+
+ 115            }
+ 116          }
+ 117          
+ 118          /*
+ 119           *函数名：重定向putchar函数
+ 120           *作者：王彦皓
+ 121           *函数功能：重定向putchar函数，让printf函数能够正确向上位机发送数据
+ 122           *入口参数：要发送的一个字符c
+ 123           *返回参数：已发送的字符c
+ 124           */
+ 125          char putchar(char c)
+ 126          {
+ 127            Uart_SendByte(c);
+ 128            return c;
+ 129          }
+ 130          
+ 131          /*
+ 132           *函数名：上位机指令执行函数
+ 133           *作者：王彦皓
+ 134           *函数功能：判别、解析、执行上位机发送来的指令
+ 135           *入口参数：解析指令中的LED模式x和PWM占空比选择位y
+ 136           *返回参数：无
+ 137           */
+ 138          void UART_SET_LED(u8 x, u8 y)
+ 139          {
+ 140            if (!error_flag)
+ 141            {
+ 142              key.S6_press_times = x;
+ 143              key.S5_press_times = y;
+ 144              printf("已将LED模式设为%bd\r\n",x);
+ 145              printf("已将PWM占空比设为%c%bd\r\n",'%',(y*20));
+ 146            }
+ 147            else if (error_flag)
+ 148              printf("你输入了无效的非法指令\r\n");
+ 149          }
+*** WARNING C316 IN LINE 149 OF Sys\Uart.c: unterminated conditionals
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  1 ERROR(S)

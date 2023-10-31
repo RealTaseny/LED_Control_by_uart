@@ -1,0 +1,11 @@
+".\Objects\main.obj",
+".\Objects\delay.obj",
+".\Objects\Init.obj",
+".\Objects\PWM.obj",
+".\Objects\Uart.obj",
+".\Objects\ADC_wyh.obj",
+".\Objects\Vofa_wyh.obj",
+".\Objects\key.obj",
+".\Objects\LED.obj" 
+TO ".\Objects\LED_MODE" 
+PRINT(".\Listings\LED_MODE.m51") RAMSIZE(256) 

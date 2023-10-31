@@ -1,0 +1,38 @@
+{
+    "configurations": [
+        {
+            "name": "DEBUG",
+            "includePath": [
+                "f:\\51单片机工程\\智能车考核\\第二次考核\\作业_IAP15F2K61S2\\Driver",
+                "f:\\51单片机工程\\智能车考核\\第二次考核\\作业_IAP15F2K61S2\\Sys",
+                "f:\\51单片机工程\\智能车考核\\第二次考核\\作业_IAP15F2K61S2\\User"
+            ],
+            "defines": [
+                "__C51__",
+                "__VSCODE_C51__",
+                "reentrant=",
+                "compact=",
+                "small=",
+                "large=",
+                "data=",
+                "idata=",
+                "pdata=",
+                "bdata=",
+                "xdata=",
+                "code=",
+                "bit=char",
+                "sbit=char",
+                "sfr=char",
+                "sfr16=int",
+                "sfr32=int",
+                "interrupt=",
+                "using=",
+                "_at_=",
+                "_priority_=",
+                "_task_="
+            ],
+            "intelliSenseMode": "${default}"
+        }
+    ],
+    "version": 4
+}
